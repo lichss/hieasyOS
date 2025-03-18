@@ -1,3 +1,10 @@
+/*
+* 实际上linux各个发行版 /usr/include 目录下应该有类似这个的头文件 这个
+* 这个头文件也基本就是照抄。
+* 可以使用 man 指令查看elf相关
+* 所以这个头文件全抄也有一点道理
+*/
+
 #ifndef _ELF_H
 #define _ELF_H
 
@@ -11,6 +18,11 @@ typedef uint16_t Elf32_Half;
 typedef uint32_t Elf32_Off;
 typedef uint32_t Elf32_Sword;
 typedef uint32_t Elf32_Word;
+
+/*
+结构体 Elf32_Ehdr 是 ELF文件头（ELF Header） 的定义。
+ELF 文件头是 ELF 文件的起始部分，包含了描述整个文件的关键信息，例如文件类型、目标架构、入口点地址、程序头表和节头表的位置等。
+*/
 
 #pragma pack(1)     /*设置结构体内存对齐方式*/
 typedef struct {
@@ -41,7 +53,11 @@ typedef struct {
     Elf32_Word p_flags;
     Elf32_Word p_align;
 } Elf32_Phdr;
-
+/* 这个结构体就是 程序头表 ，程序头表就是指这个结构体
+ * Elf32_Phdr结构体用于描述 ELF 文件中的一个段（Segment）。
+ * 程序头表（Program Header Table）由多个 Elf32_Phdr 条目组成，每个条目对应一个段。
+ * 操作系统或加载器会根据这些条目将 ELF 文件的段加载到内存中，并设置适当的内存权限。
+*/
 #pragma pack()
 
 #endif
