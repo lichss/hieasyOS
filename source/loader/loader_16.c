@@ -92,7 +92,7 @@ static void into_protMode(){
 
 void loader_entry(void) {
 
-    print_string("Hello, World!\n\r");
+    print_string("Hello,xcs!\n\r");
     detect_memory();
     into_protMode();
 
