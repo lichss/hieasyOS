@@ -1,16 +1,22 @@
-#include "init.h"
+﻿/**
+ * 内核初始化以及测试代码
+ *
+ * 作者：李述铜
+ * 联系邮箱: 527676163@qq.com
+ */
 #include "comm/boot_info.h"
-#include "kernel/cpu/cpu.h"
+#include "cpu/cpu.h"
 
-
-void kernel_init(boot_info_t* bootInfoPtr){
-    // int ram_region_count = bootInfoPtr->ram_region_count;
+/**
+ * 内核入口
+ */
+void kernel_init (boot_info_t * boot_info) {
+    // 初始化CPU，再重新加载
+    int c = boot_info->ram_region_count;
     cpu_init();
+}
 
-}  
-
-void init_main(){
-    int a=2;
-    while(1);;
-
+void init_main(void) {
+    int a =2;
+    for (;;) {}
 }
