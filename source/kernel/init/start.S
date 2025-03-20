@@ -33,14 +33,17 @@ gdt_reload:
     mov %ax, %fs
     mov %ax, %gs
 
-    jmp .
 
-	// 栈设置
 	mov $(stack + KERNEL_STACK_SIZE), %esp
 
-	// 栈和段等沿用之前的设置
 	jmp init_main
 
 	.bss
 .comm stack, KERNEL_STACK_SIZE    // comm 声明未初始化的通用内存区域，以字节计
 
+
+    .text
+    .global exception_handler_unknown
+exception_handler_unknown:
+    iret
+    
