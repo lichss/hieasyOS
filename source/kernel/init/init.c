@@ -15,8 +15,8 @@ void kernel_init (boot_info_t * boot_info) {
 }
 
 void init_main(void) {
-    int a =2;
-    int c =a/0;
+    // int a =2;
+    int c =3/0;
     // for (;;) {}
     while(1);;
 }
