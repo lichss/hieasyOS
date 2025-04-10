@@ -22,3 +22,4 @@
 ## Mar-20 日记：
 整个源码kernel部分应该有很多问题，一开始`boot_info`参数能正产传递，但`init_main`不能正常跳转，问题可能出在 `segment_desc_set` [cpu.c](./source/kernel/cpu/cpu.c)函数上,照抄之后可以正常跳转`init_main` ，但`boot_info`又出问题。。艹了。现在整个[kernel](./source/kernel)照抄，现在应该没有问题了。
 我决定从现在开始尽量保持接口命名对齐，以方便以后直接照抄。
+

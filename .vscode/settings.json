@@ -14,6 +14,7 @@
         "init.h": "c",
         "cpu_instr.h": "c",
         "irq.h": "c",
-        "os_cfg.h": "c"
+        "os_cfg.h": "c",
+        "timer.h": "c"
     },
 }
