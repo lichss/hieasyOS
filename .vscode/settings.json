@@ -15,6 +15,7 @@
         "cpu_instr.h": "c",
         "irq.h": "c",
         "os_cfg.h": "c",
-        "timer.h": "c"
+        "timer.h": "c",
+        "log.h": "c"
     },
 }
