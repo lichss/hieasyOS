@@ -2,6 +2,7 @@
 #include "cpu/irq.h"
 #include "comm/cpu_instr.h"
 #include "os_cfg.h"
+#include "tools/log.h"
 
 static uint32_t sys_tick;
 
@@ -10,8 +11,9 @@ static uint32_t sys_tick;
 void do_handler_timer(exception_frame_t* frame){
     sys_tick++;
     // exception_handler_timer();
-
-    pic_send_eoi(IRQ0_TIMER);
+    if(sys_tick %100 == 0)
+        log_printf("1s passed\n");
+    pic_send_eoi(IRQ0_TIMER);   // 有点像清中断标志位
 
 }
 

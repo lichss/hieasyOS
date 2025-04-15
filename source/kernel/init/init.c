@@ -5,13 +5,15 @@
 #include "cpu/irq.h"
 #include "dev/timer.h"
 #include "tools/log.h"
+#include "tools/klib.h"
+
 
 /**
  * 内核入口
  */
 void kernel_init (boot_info_t * boot_info) {
     // 初始化CPU，再重新加载
-    int c = boot_info->ram_region_count;
+    ASSERT( boot_info->ram_region_count);
     cpu_init();
 
     log_init();
@@ -26,9 +28,10 @@ void init_main(void) {
 
     log_printf("running version:%s","no version\n");
 
-    int a=0;
-    irq_enable_global();
+    int a=1;
+    // irq_enable_global();
+    ASSERT(!a); 
     while(1){
-        a =3;
+        a  = a/0;
     }
 }

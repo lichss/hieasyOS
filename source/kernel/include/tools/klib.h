@@ -15,4 +15,15 @@ void kernel_itoa(char * buf, int num, int base);
 void kernel_sprintf(char * buffer, const char * fmt, ...);
 void kernel_vsprintf(char * buffer, const char * fmt, va_list args);
 
+
+#ifndef RELEASE
+void pannic(const char* file,const int line ,const char* func,const char* expr);
+
+#define ASSERT(expr)    \
+    if(!(expr)) pannic(__FILE__,__LINE__,__func__,#expr);
+#else
+#define ASSERT(expr)    0
+#endif
+
+
 #endif //KLIB_H

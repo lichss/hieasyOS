@@ -1,13 +1,9 @@
-/**
- * 一些字符串的处理函数
- *
- * 创建时间：2022年8月5日
- * 作者：李述铜
- * 联系邮箱: 527676163@qq.com
- */
+#include "tools/log.h"
+#include "comm/cpu_instr.h"
 #include "tools/klib.h"
+#define USE_ORIGIN 0
 
-
+#if USE_ORIGIN
 void kernel_strcpy (char * dest, const char * src) {
     if (!dest || !src) {
         return;
@@ -18,6 +14,20 @@ void kernel_strcpy (char * dest, const char * src) {
     }
     *dest = '\0';
 }
+#else
+void kernel_strcpy (char * dest, const char * src) {
+    if(!dest || !src){
+        return;
+    }
+
+    while(*src != '\0'){
+        *dest++ = *src++;
+    }
+    *dest = '\0';
+
+    return;
+}
+#endif
 
 void kernel_strncpy(char * dest, const char * src, int size) {
     if (!dest || !src || !size) {
@@ -52,10 +62,6 @@ int kernel_strlen(const char * str) {
 	return len;
 }
 
-/**
- * 比较两个字符串，最多比较size个字符
- * 如果某一字符串提前比较完成，也算相同
- */
 int kernel_strncmp (const char * s1, const char * s2, int size) {
     if (!s1 || !s2) {
         return -1;
@@ -76,8 +82,8 @@ void kernel_memcpy (void * dest, void * src, int size) {
         return;
     }
 
-    uint8_t * s = (uint8_t *)src;
-    uint8_t * d = (uint8_t *)dest;
+    uint8_t * s = src;
+    uint8_t * d = dest;
     while (size--) {
         *d++ = *s++;
     }
@@ -88,7 +94,7 @@ void kernel_memset(void * dest, uint8_t v, int size) {
         return;
     }
 
-    uint8_t * d = (uint8_t *)dest;
+    uint8_t * d = dest;
     while (size--) {
         *d++ = v;
     }
@@ -210,3 +216,14 @@ void kernel_vsprintf(char * buffer, const char * fmt, va_list args) {
 }
 
 
+void pannic(const char* file,const int line,const char* func,const char* expr){
+    log_printf("assert failed: %s\n",expr);
+    log_printf("in file: %s\t",file);
+    log_printf("function: %s\n",func);
+    log_printf("line: %d\n",line);
+
+    while(1){
+        hlt();
+    }
+
+}

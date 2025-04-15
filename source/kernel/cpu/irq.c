@@ -2,14 +2,34 @@
 #include "cpu/irq.h"
 #include "cpu/cpu.h"
 #include  "os_cfg.h"
+#include "tools/log.h"
 #define IDT_TABLE_NR    128
 
 static gate_desc_t idt_table[IDT_TABLE_NR];
 
+void dump_core_regs(exception_frame_t* frame){
 
+	log_printf("IRQ: %d\tERROR CODE:%d\n",frame->num,frame->error_code);
+
+	log_printf("GS: %d\tFS: %d\tES: %d\tDS: %d\tSS:%d\t",frame->gs,frame->fs,frame->es,frame->ds,frame->ds);
+	log_printf("EDI: %d\tESI: %d\tEBP: %d\tEBP: %d\n",frame->edi,frame->esi,frame->ebp,frame->ebp);
+	log_printf("EAX: %d\tEBX: %d\tECX: %d\tEDX: %d\n",frame->eax,frame->ebx,frame->ecx,frame->edx);
+	log_printf("GS: %d\tFS: %d\tES: %d\tDS: %d\n",frame->gs,frame->fs,frame->es,frame->ds);
+
+	log_printf("EIP: 0X%x\n"
+				"ELAGS: 0X%x\n",
+				frame->eip,
+				frame->eflags
+	);
+	return;
+}
 static void do_default_handler(exception_frame_t* frame, const char* info){
-    int a=1;
-    a++;
+
+	log_printf("--------------------------------\n");
+	log_printf("Default_Error handeler. %s",info);
+
+	dump_core_regs(frame);
+	
     while(1){
         hlt();
     }
