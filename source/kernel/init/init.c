@@ -6,11 +6,12 @@
 #include "dev/timer.h"
 #include "tools/log.h"
 #include "tools/klib.h"
-
+#include "core/task.h"
 
 /**
  * 内核入口
  */
+
 void kernel_init (boot_info_t * boot_info) {
     // 初始化CPU，再重新加载
     ASSERT( boot_info->ram_region_count);
@@ -21,17 +22,35 @@ void kernel_init (boot_info_t * boot_info) {
     time_init();
 }
 
+static task_t first_task;
+static uint32_t init_task_stack[1024];     
+static task_t init_task;
+
+void init_task_entry(void){
+    int count = 0;
+    for(;;){
+        log_printf("task %d \n",count++);
+        task_switch_from_to(&init_task, &first_task);
+    }
+
+}
+
 void init_main(void) {
-    // int a =2;
-    // int c =3/0;
-    // for (;;) {}
+
 
     log_printf("running version:%s","no version\n");
 
+    task_init(&init_task,(uint32_t)init_task_entry,(uint32_t)&init_task_stack[1024]);
+    task_init(&first_task,(uint32_t)0,0);
+    write_tr(first_task.tss_sel);
+
     int a=1;
     // irq_enable_global();
-    ASSERT(!a); 
+    // ASSERT(!a); 
     while(1){
-        a  = a/0;
+        log_printf("init main:%d",a++);
+        task_switch_from_to(&first_task,&init_task);
     }
+
+    return;
 }
