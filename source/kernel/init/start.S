@@ -105,3 +105,27 @@ exception_handler virtual_exception, 20, 0
 
 // 硬件中断
 exception_handler timer, 0x20, 0
+
+	// simple_switch(&from , to)
+	// 这个函数整体完成的工作是 
+	// 将from进程的的四个需要保存的寄存器 ebp ebx esi edi 压入,
+	// 将to进程的寄存器弹出. 注意是不同的栈空间
+	.text
+	.global simple_switch
+simple_switch:
+	mov 4(%esp), %eax
+	mov 8(%esp), %edx
+
+	push %ebp
+	push %ebx
+	push %esi
+	push %edi
+	mov %esp, (%eax)
+	
+	mov %edx, %esp
+	pop %edi
+	pop %esi
+	pop %ebx
+	pop %ebp
+
+	ret
