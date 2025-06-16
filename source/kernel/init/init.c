@@ -22,7 +22,7 @@ void kernel_init (boot_info_t * boot_info) {
     time_init();
 }
 
-static task_t first_task;
+static task_t first_task;       /* 这个东西应该类似进程控制块 */
 static uint32_t init_task_stack[1024];     
 static task_t init_task;
 
@@ -36,7 +36,6 @@ void init_task_entry(void){
 }
 
 void init_main(void) {
-
 
     log_printf("running version:%s","no version\n");
 

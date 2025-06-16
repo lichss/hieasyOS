@@ -37,7 +37,8 @@
 #pragma pack(1)
 
 /**
- * GDT描述符
+ * GD描述符
+ * Global Descriptor 此乃全局描述符
  */
 typedef struct _segment_desc_t {
 	uint16_t limit15_0;

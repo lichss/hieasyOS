@@ -2,7 +2,10 @@
 #define __TASK_H__
 
 #include "cpu/cpu.h"
-
+/*
+* task_t 这个结构应该类似进程控制块
+*
+*/
 typedef struct _task_t{
     uint32_t* stack;
 
