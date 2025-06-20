@@ -19,10 +19,10 @@ __asm__(".code16gcc");
 
 void (*boot_loaderP)(void) = (void *)BOOT_LOADER_ENTRY; /* 我发现一个非常奇怪的bug  */
 void boot_entry(void) {
-    boot_loaderP = (void *)BOOT_LOADER_ENTRY;
-    boot_loaderP();
-    // ((void (*)(void))BOOT_LOADER_ENTRY)();
-    // while(1){};
+    // boot_loaderP = (void *)BOOT_LOADER_ENTRY;
+    // boot_loaderP();
+    ((void (*)(void))BOOT_LOADER_ENTRY)();
+    while(1){};
 
     /* 这里是不是该加点报错退出啊  */
 } 
