@@ -40,16 +40,17 @@ static int tss_init (task_t * task, uint32_t entry, uint32_t esp) {
 int task_init(task_t* task,uint32_t entry,uint32_t esp){
     ASSERT(task!= 0);
     tss_init(task,entry,esp);
-    uint32_t* pesp = (uint32_t*) esp; 
-    if(pesp){
-        *(--pesp) = entry;
 
-        *(--pesp) = 0;
-        *(--pesp) = 0;
-        *(--pesp) = 0;
-        *(--pesp) = 0;
-        task->stack = pesp;
-    }
+    // uint32_t* pesp = (uint32_t*) esp; 
+    // if(pesp){
+    //     *(--pesp) = entry;
+
+    //     *(--pesp) = 0;
+    //     *(--pesp) = 0;
+    //     *(--pesp) = 0;
+    //     *(--pesp) = 0;
+    //     task->stack = pesp;
+    // }
     return 0;
 }
 /* 这个函数的具体实现在 kernel/init/start.s 里 */
