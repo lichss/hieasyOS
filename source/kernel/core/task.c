@@ -39,20 +39,19 @@ static int tss_init (task_t * task, uint32_t entry, uint32_t esp) {
 
 
 
-int task_init(task_t* task,uint32_t entry,uint32_t esp){
+int task_init(task_t* task,const char* name, uint32_t entry,uint32_t esp){
     ASSERT(task!= 0);
     tss_init(task,entry,esp);
 
-    // uint32_t* pesp = (uint32_t*) esp; 
-    // if(pesp){
-    //     *(--pesp) = entry;
+    kernel_strncpy(task->name,name,TASK_NAME_SIZE);
+    
+    task->state = TASK_CREATED;
+    list_node_init(task->run_node);
+    list_node_init(task->all_node);
 
-    //     *(--pesp) = 0;
-    //     *(--pesp) = 0;
-    //     *(--pesp) = 0;
-    //     *(--pesp) = 0;
-    //     task->stack = pesp;
-    // }
+    
+
+    list_insert_last(&task_manager.task_list,task->all_node);
     return 0;
 }
 /* 这个函数的具体实现在 kernel/init/start.s 里 */
@@ -65,7 +64,7 @@ void task_switch_from_to(task_t *form, task_t* to){
 
 
 void task_first_init(void){
-    task_init(&task_manager.first_task,(uint32_t)0,0);
+    task_init(&task_manager.first_task,"first task",(uint32_t)0,0);
     write_tr(task_manager.first_task.tss_sel);
     task_manager.curr_task = &task_manager.first_task;
 }
@@ -76,5 +75,16 @@ void task_manager_init(){
     list_init(&task_manager.ready_list);
     list_init(&task_manager.task_list);
     task_manager.curr_task = 0;
+
+}
+
+void task_set_ready(task_t* task){
+    task->state = TASK_READY;
+    list_insert_last(&task_manager.ready_list,task->run_node);
+
+}
+
+void task_set_block(task_t* task){
+    list_remove(&task_manager.ready_list,task->run_node);
 
 }

@@ -43,7 +43,7 @@ void init_main(void) {
 
     log_printf("running version:%s","no version\n");
 
-    task_init(&init_task,(uint32_t)init_task_entry,(uint32_t)&init_task_stack[1024]);
+    task_init(&init_task,"init task",(uint32_t)init_task_entry,(uint32_t)&init_task_stack[1024]);
     task_first_init();
 
     int a=0;
