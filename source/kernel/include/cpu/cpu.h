@@ -58,6 +58,9 @@ typedef struct _gate_desc_t{
 
 
 /* Task-State Segment tss*/
+/**
+ * 这个数据结构保存了CPU的状态,这是任务切换到关键
+ */
 typedef struct _tss_t{
 	uint32_t pre_link;
 	uint32_t esp0,ss0,esp1,ss1,esp2,ss2;

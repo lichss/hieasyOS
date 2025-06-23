@@ -65,7 +65,19 @@ void list_insert_last(list_t* list,list_node_t* node);
 
 
 list_node_t* list_remove_first(list_t* list);
-
 list_node_t* list_remove(list_t* list,list_node_t* del_node);
+
+/** 
+ * 正好借此深入了解一下 宏
+ * 
+ */
+#define offset_in_parent(parent_type, node_name)    \
+    ((uint32_t)&(((parent_type*)0)->node_name))
+
+#define offset_to_parent(node, parent_type, node_name)   \
+    ((uint32_t)node - offset_in_parent(parent_type, node_name))
+
+#define list_node_parent(node, parent_type, node_name)   \
+        ((parent_type *)(node ? offset_to_parent((node), parent_type, node_name) : 0))
 
 #endif
