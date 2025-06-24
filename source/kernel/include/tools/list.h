@@ -77,7 +77,7 @@ list_node_t* list_remove(list_t* list,list_node_t* del_node);
 #define offset_to_parent(node, parent_type, node_name)   \
     ((uint32_t)node - offset_in_parent(parent_type, node_name))
 
+/*     task_t* nextRun = list_node_parent(task_node,task_t,run_node); */
 #define list_node_parent(node, parent_type, node_name)   \
         ((parent_type *)(node ? offset_to_parent((node), parent_type, node_name) : 0))
-
 #endif

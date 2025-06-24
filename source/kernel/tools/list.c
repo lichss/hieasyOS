@@ -25,23 +25,42 @@ void list_insert_first(list_t* list,list_node_t* node){
     return;
 }
 
-void list_insert_last(list_t* list,list_node_t* node){
-    if(!node)
-        return;
+// void list_insert_last(list_t* list,list_node_t* node){
+//     // if(!node)
+//     //     return;
 
-    node->next = (list_node_t*) 0;
+//     node->next = (list_node_t*) 0;
+//     node->prev = list->last;
+//     list->last = node;
+
+//     if(list_is_empty(list)){
+//         list->first = node;
+//     }else{
+//         list->last->next = node;
+//     }
+
+//     list->count++;
+//     return;
+// }
+void list_insert_last(list_t *list, list_node_t *node) {
+    // 设置好结点本身
     node->prev = list->last;
-    list->last = node;
+    node->next = (list_node_t*)0;
 
-    if(list_is_empty(list)){
-        list->first = node;
-    }else{
+    // 表空，则first/last都指向唯一的node
+    if (list_is_empty(list)) {
+        list->first = list->last = node;
+    } else {
+        // 否则，调整last结点的向一指向为node
         list->last->next = node;
+
+        // node变成了新的后继结点
+        list->last = node;
     }
 
     list->count++;
-    return;
 }
+
 /** 
      * 如果我说我在这里生命一个常量指针,
      * 期望编译器把它内联优化,从而不占用

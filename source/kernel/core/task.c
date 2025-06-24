@@ -46,12 +46,12 @@ int task_init(task_t* task,const char* name, uint32_t entry,uint32_t esp){
     kernel_strncpy(task->name,name,TASK_NAME_SIZE);
     
     task->state = TASK_CREATED;
-    list_node_init(task->run_node);
-    list_node_init(task->all_node);
+    list_node_init(&task->run_node);
+    list_node_init(&task->all_node);
 
     
-
-    list_insert_last(&task_manager.task_list,task->all_node);
+    task_set_ready(task);
+    list_insert_last(&task_manager.task_list,&task->all_node);
     return 0;
 }
 /* 这个函数的具体实现在 kernel/init/start.s 里 */
@@ -80,11 +80,41 @@ void task_manager_init(){
 
 void task_set_ready(task_t* task){
     task->state = TASK_READY;
-    list_insert_last(&task_manager.ready_list,task->run_node);
+    list_insert_last(&task_manager.ready_list,&task->run_node);
 
 }
 
 void task_set_block(task_t* task){
-    list_remove(&task_manager.ready_list,task->run_node);
+    list_remove(&task_manager.ready_list,&task->run_node);
+}
 
+task_t* task_next_run(void){
+    list_node_t* task_node = list_first(&task_manager.ready_list);
+    return list_node_parent(task_node,task_t,run_node);
+}
+task_t* task_current(void){
+    return task_manager.curr_task;
+}
+
+int sys_sched_yield(){
+    if(list_count(&task_manager.ready_list)>1){
+        task_t* curr = task_current();
+        task_set_block(curr);
+        task_set_ready(curr);   /*相当于滚后面排队了*/
+
+        task_dispatch();
+    }
+    return 0;
+}
+
+void task_dispatch(void){
+    task_t* to = task_next_run();
+    if(to != task_manager.curr_task){
+        task_t* from = task_current(); 
+        task_manager.curr_task = to;
+        to->state = TASK_RUNNING;
+        task_switch_from_to(from,to);
+    }
+
+    return ;
 }
