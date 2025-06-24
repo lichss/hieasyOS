@@ -4,7 +4,8 @@
 
 #include "cpu/cpu.h"
 #include "tools/list.h"
-#define TASK_NAME_SIZE      32
+#define TASK_NAME_SIZE      32 
+#define TASK_TIME_SLICE_DEFAULT 10 
 /*
 * task_t 
 *
@@ -20,6 +21,9 @@ typedef struct _task_t{
     }state;
 
     char name[TASK_NAME_SIZE];
+
+    int time_tick;
+    int slice_tick;
 
     list_node_t run_node;
     list_node_t all_node;
@@ -39,6 +43,8 @@ typedef struct _task_manager_t{
     task_t first_task;
 
 }task_manager_t;
+
+void task_time_tick();
 
 void task_manager_init(void);
 void task_first_init(void);

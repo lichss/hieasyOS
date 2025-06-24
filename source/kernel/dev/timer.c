@@ -3,6 +3,7 @@
 #include "comm/cpu_instr.h"
 #include "os_cfg.h"
 #include "tools/log.h"
+#include "core/task.h"
 
 static uint32_t sys_tick;
 
@@ -14,6 +15,7 @@ void do_handler_timer(exception_frame_t* frame){
     if(sys_tick %100 == 0)
         log_printf("1s passed\n");
     pic_send_eoi(IRQ0_TIMER);   // 有点像清中断标志位
+    task_time_tick();
 
 }
 

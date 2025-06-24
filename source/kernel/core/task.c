@@ -44,12 +44,15 @@ int task_init(task_t* task,const char* name, uint32_t entry,uint32_t esp){
     tss_init(task,entry,esp);
 
     kernel_strncpy(task->name,name,TASK_NAME_SIZE);
-    
+
+    task->time_tick = TASK_TIME_SLICE_DEFAULT;
+    task->slice_tick = task->time_tick;
+
     task->state = TASK_CREATED;
     list_node_init(&task->run_node);
     list_node_init(&task->all_node);
 
-    
+
     task_set_ready(task);
     list_insert_last(&task_manager.task_list,&task->all_node);
     return 0;
@@ -117,4 +120,19 @@ void task_dispatch(void){
     }
 
     return ;
+}
+
+
+void task_time_tick(){
+    task_t* curr = task_current();
+    if(--curr->slice_tick == 0){
+
+        curr->slice_tick = curr->time_tick;
+
+        task_set_block(curr);
+        task_set_ready(curr);
+
+
+        task_dispatch();
+    }
 }

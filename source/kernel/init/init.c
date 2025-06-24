@@ -33,7 +33,7 @@ void init_task_entry(void){
     for(;;){
         log_printf("task %d \n",count++);
         // task_switch_from_to(&init_task, task_first_task());
-        sys_sched_yield();
+        // sys_sched_yield();
     }
 
 }
@@ -48,11 +48,11 @@ void init_main(void) {
     task_first_init();
 
     int a=0;
-    // irq_enable_global();
+    irq_enable_global();
     // ASSERT(!a); 
     while(1){
         log_printf("init main:%d",a++);
-        sys_sched_yield();
+        // sys_sched_yield();
         // task_switch_from_to(task_first_task(),&init_task);
     }
 
