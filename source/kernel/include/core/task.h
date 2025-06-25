@@ -22,8 +22,9 @@ typedef struct _task_t{
 
     char name[TASK_NAME_SIZE];
 
-    int time_tick;
-    int slice_tick;
+    int sleep_ticks;
+    int time_ticks;
+    int slice_ticks;
 
     list_node_t run_node;
     list_node_t all_node;
@@ -40,6 +41,8 @@ typedef struct _task_manager_t{
     task_t* curr_task;
     list_t ready_list;
     list_t task_list;
+    list_t sleep_list;
+
     task_t first_task;
 
 }task_manager_t;
@@ -61,6 +64,11 @@ void task_set_block(task_t* task);
 int sys_sched_yield(void);
 
 void task_dispatch(void);
+void manager_report(void);
 
+void task_set_sleep(task_t* taks,uint32_t ticks);
+void task_set_wakeup(task_t* task);
+
+void sys_sleep(uint32_t ms);
 
 #endif

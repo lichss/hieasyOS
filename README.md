@@ -48,7 +48,8 @@ list_node_t* list_remove_first(list_t* list) {
 
 
 ## 关于多线程的想法
-```C    while(node!=0){ /*   看似安全 实际上如果是多线程则可能导致 崩溃 */ 
+```C    
+    while(node!=0){ /*   看似安全 实际上如果是多线程则可能导致 崩溃 */ 
         if(node == del_node){
             node->next->prev = node->prev;
             node->prev->next = node->next;

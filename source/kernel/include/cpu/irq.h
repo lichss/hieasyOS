@@ -2,6 +2,7 @@
 #define IRQ_H_
 
 #include "cpu.h"
+#include "comm/types.h"
 // 中断号码
 #define IRQ0_DE             0
 #define IRQ1_DB             1
@@ -96,6 +97,10 @@ void exception_handler_smd_exception (void);
 void exception_handler_virtual_exception (void);
 
 void exception_handler_timer (void);
+
+typedef uint32_t irq_state_t;
+irq_state_t irq_enter_protection();
+void irq_leave_protection(irq_state_t state); 
 
 
 #endif
