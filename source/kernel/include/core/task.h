@@ -44,6 +44,7 @@ typedef struct _task_manager_t{
     list_t sleep_list;
 
     task_t first_task;
+    task_t idle_task;
 
 }task_manager_t;
 

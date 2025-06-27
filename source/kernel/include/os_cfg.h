@@ -14,5 +14,5 @@
 
 
 #define OS_TICK_MS      10
-
+#define IDLE_STACK_SIZE      1024
 #endif //OS_OS_CFG_H

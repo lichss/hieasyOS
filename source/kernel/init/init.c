@@ -30,7 +30,6 @@ static uint32_t secd_task_stack[1024];
 static task_t init_task;
 static task_t scnd_task;
 
-
 void second_task_entry(void){
     int count = 0;
     while(1){
@@ -44,9 +43,11 @@ void second_task_entry(void){
 void init_task_entry(void){
     int count = 0;
     for(;;){
-        count++;
+        
         // if(count % 10000 == 0)
-        //     log_printf("task %d",count++);
+
+            log_printf("task %d",count++);
+            sys_sleep(1500);
         // task_switch_from_to(&init_task, task_first_task());
         // sys_sched_yield();
     }
@@ -71,7 +72,7 @@ void init_main(void) {
         // if(a % 10000 == 0)
         log_printf("init main:%d",a);
 
-        sys_sleep(1000);
+        sys_sleep(500);
         // sys_sched_yield();
         // task_switch_from_to(task_first_task(),&init_task);
     }
