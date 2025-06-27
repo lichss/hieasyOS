@@ -12,8 +12,8 @@ static uint32_t sys_tick;
 void do_handler_timer(exception_frame_t* frame){
     sys_tick++;
     // exception_handler_timer();
-    if(sys_tick %100 == 0)
-        log_printf("1s passed\n");
+    // if(sys_tick %100 == 0)
+    //     log_printf("1s passed\n");
     pic_send_eoi(IRQ0_TIMER);   // 有点像清中断标志位
     task_time_tick();
 
