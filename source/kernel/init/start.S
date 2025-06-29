@@ -1,5 +1,8 @@
  #include "os_cfg.h"
 
+	// 关于下面这段权限指令可以参考.md文件
+	.section .note.GNU-stack,"",%progbits
+
   	// 不必加.code32因默认就是32位
  	.text
  	.global _start

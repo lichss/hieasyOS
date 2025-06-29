@@ -13,6 +13,12 @@
  * 内核入口
  */
 
+static uint32_t init_task_stack[1024];     
+static uint32_t secd_task_stack[1024];     
+static task_t init_task;
+static task_t scnd_task;
+static sem_t sem;
+
 void kernel_init (boot_info_t * boot_info) {
     // 初始化CPU，再重新加载
     ASSERT( boot_info->ram_region_count);
@@ -25,11 +31,6 @@ void kernel_init (boot_info_t * boot_info) {
     task_manager_init();
 }
 
-static uint32_t init_task_stack[1024];     
-static uint32_t secd_task_stack[1024];     
-static task_t init_task;
-static task_t scnd_task;
-static sem_t sem;
 
 void second_task_entry(void){
     int count = 0;

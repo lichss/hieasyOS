@@ -4,11 +4,13 @@
 #include "tools/log.h"
 #include "os_cfg.h"
 #include "cpu/irq.h"
-
+#include "ipc/mutex.h"
 
 // 目标用串口，参考资料：https://wiki.osdev.org/Serial_Ports
 #define COM1_PORT           0x3F8       // RS232端口0初始化
 
+
+static mutex_t mutex;
 /**
  * @brief 初始化日志输出
  */
@@ -23,6 +25,7 @@ void log_init (void) {
     // If serial is not faulty set it in normal operation mode
     // (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
     outb(COM1_PORT + 4, 0x0F);
+    mutex_init(&mutex);
 }
 
 /**
@@ -38,7 +41,7 @@ void log_printf(const char * fmt, ...) {
     kernel_vsprintf(str_buf, fmt, args);
     va_end(args);
 
-    irq_state_t state = irq_enter_protection();
+    mutex_lock(&mutex);
 
     const char * p = str_buf;    
     while (*p != '\0') {
@@ -49,5 +52,5 @@ void log_printf(const char * fmt, ...) {
     outb(COM1_PORT, '\r');
     outb(COM1_PORT, '\n');
 
-    irq_leave_protection(state);
+    mutex_unlock(&mutex);
 }

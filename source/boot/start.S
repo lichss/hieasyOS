@@ -1,6 +1,7 @@
 
 	#include "boot.h"
-
+	// 经我的测试 linux环境下会有可执行栈的相关警告 如果加上这些指令则不会警告
+	.section .note.GNU-stack,"",%progbits 
   	// 16位代码,务必加上
   	.code16
  	.text

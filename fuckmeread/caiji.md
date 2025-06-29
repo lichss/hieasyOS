@@ -70,3 +70,18 @@ typedef struct _task_t{
 实现的方法是,在dispatch过程中检查一下,如果`ready_list`确实空了,`idle_task`就上.
 `idel_task`还有一点就是,切入后要能出的来.
 设计没有出什么问题,(*除了一些低级错误 栈起始地址出错. 另外,之前的kernel报错机制挺好用的.*)
+
+
+### 为什么是可计数的互斥锁 aka可重入锁
+考虑一种场景 递归调用
+
+```
+recur(){
+    mutex_lock();
+    recur();
+
+    mutex_unlock;
+}
+```
+
+如果同一个线程不能对一个资源多次加锁,上面的例子则会形成错误.
