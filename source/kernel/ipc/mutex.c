@@ -28,7 +28,9 @@ void mutex_lock(mutex_t* mutex){
 
     irq_leave_protection(state);
 }
-
+/**
+ * @brief 解锁 但计数情况为负就麻烦了 以后可以改进
+ */
 
 void mutex_unlock(mutex_t* mutex){
     irq_state_t state = irq_enter_protection();
@@ -38,7 +40,7 @@ void mutex_unlock(mutex_t* mutex){
         if(--mutex->locked_count==0){
             mutex->owner = (void*)0;
             if(list_count(&mutex->wait_list)){
-                list_node_t* node = mutex->wait_list.first;
+                list_node_t* node = list_remove_first(&mutex->wait_list);
                 task_t* task = list_node_parent(node,task_t,wait_node);
                 task_set_ready(task);
 
@@ -54,3 +56,11 @@ void mutex_unlock(mutex_t* mutex){
 
     irq_leave_protection(state);
 }
+
+/**
+ * 李仔的风格还是很激进的,有很多潜在的出错的地方
+ * 比如这里 互斥锁计数没考虑过为负数的情况,这就要求编程时必须注意加锁和解锁
+ * 如果有意外,解锁函数八成不能正常运行. 不嫌弃工作量的话 更好的做法显然是检查 然后报错
+ * 
+ * 
+ */

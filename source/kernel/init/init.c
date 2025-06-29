@@ -45,8 +45,8 @@ void init_task_entry(void){
     for(;;){
         
         // if(count % 10000 == 0)
-        sem_wait(&sem);
-        log_printf("task %d",count++);
+        // sem_wait(&sem);
+        log_printf("deputy task %d",count++);
         // task_switch_from_to(&init_task, task_first_task());
         // sys_sched_yield();
     }
@@ -69,10 +69,10 @@ void init_main(void) {
     while(1){
         a++;
         // if(a % 10000 == 0)
-        log_printf("init main:%d",a);
-        sem_notify(&sem);
+        log_printf("main task:%d",a);
+        // sem_notify(&sem);
         
-        sys_sleep(1000);
+        // sys_sleep(1000);
         // sys_sched_yield();
         // task_switch_from_to(task_first_task(),&init_task);
     }

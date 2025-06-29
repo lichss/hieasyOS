@@ -85,7 +85,7 @@ list_node_t* list_remove_first(list_t* list) {
     return node;
 }
 /**
- * @brief 更简洁的做法. 唯一缺点是需要假定node存在于链表当中,否则会出现未知错误
+ * @brief 更简洁的做法. 唯一缺点是需要假定node存在于链表当中,否则会出现未知错误 
  */
 list_node_t* list_remove(list_t* list,list_node_t* node){
     if(!node)
@@ -107,7 +107,7 @@ list_node_t* list_remove(list_t* list,list_node_t* node){
 
     return node;
 }
-#if 0   /*疑似有点蠢了*/
+#if 0   /*疑似有点蠢了*/ /* 不能算完全意义上的蠢吧 比较保险*/
 list_node_t* list_remove(list_t* list,list_node_t* del_node){
     if(list_is_empty(list)|| del_node == 0)
         return 0;
