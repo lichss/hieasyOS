@@ -1,3 +1,8 @@
+### ELF文件
+
+elf文件其实是linux平台下可执行文件的默认格式
+elf文件遵照一定的规范存可执行的命令
+
 ELF(5)                                     File Formats Manual                                     ELF(5)
 
 NAME

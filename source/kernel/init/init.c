@@ -9,6 +9,7 @@
 #include "tools/list.h"
 #include "core/task.h"
 #include "ipc/sem.h"
+#include "core/memory.h"
 /**
  * 内核入口
  */
@@ -24,6 +25,7 @@ void kernel_init (boot_info_t * boot_info) {
     ASSERT( boot_info->ram_region_count);
     cpu_init();
 
+    memory_init(boot_info);
     log_init();
     irq_init();
     time_init();
