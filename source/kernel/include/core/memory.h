@@ -19,7 +19,16 @@ typedef struct _addr_alloc_t{
     uint32_t page_size;
 
 }addr_alloc_t;
+typedef struct _memry_map_t{
+    void* vstart;
+    void* vend;
+    void* pstart;
+    uint32_t perm;
+
+}memory_map_t;
 
 void memory_init(boot_info_t* boot_info);
+
+uint32_t memory_create_uvm(void);
 
 #endif

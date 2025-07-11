@@ -34,6 +34,9 @@ static int tss_init (task_t * task, uint32_t entry, uint32_t esp) {
     task->tss.cs = KERNEL_SELECTOR_CS;    // 暂时写死
     task->tss.iomap = 0;
 
+
+
+
     task->tss_sel = tss_sel;
     return 0;
 }

@@ -60,9 +60,28 @@ static uint32_t elf_load(void* file_buffer){
 
     return elf_header->e_entry;
 }
+#define PDE_P (1 << 0) // Page Directory Entry Present
+#define PDE_W      (1 << 1) // Page Directory Entry Read/Write
+#define PDE_PS     (1 << 7) // Page Directory Entry Page Size
+
+#define CR4_PSE     (1 << 4) // Page Size Extensions
+#define CR0_PG      (1 << 31) // Paging
+
+
+void enable_page_mode(void){
+    static uint32_t page_dir[1024] __attribute__((aligned(4096))) = {
+        [0] = PDE_P | PDE_W | PDE_PS | 0
+    };
+    uint32_t cr4 = read_cr4();
+    write_cr4(cr4 | CR4_PSE); // Enable Page Size Extensions
+    write_cr3((uint32_t)page_dir);
+    write_cr0(read_cr0() | CR0_PG); // Enable Paging
+}
 
 void loader_anomi_entry(void) {
     read_disk(100,500,(void*)KERNEL_ADDR);
+
+    enable_page_mode(); // Enable paging mode
     uint32_t entry = elf_load((void*)KERNEL_ADDR); 
     if(entry == 0){
         while(1){
