@@ -20,12 +20,19 @@ static task_t init_task;
 static task_t scnd_task;
 static sem_t sem;
 
+uint32_t testa(){
+    int a = 2;
+
+    return a+1;
+}
+
 void kernel_init (boot_info_t * boot_info) {
     // 初始化CPU，再重新加载
     ASSERT( boot_info->ram_region_count);
     cpu_init();
-
+    *(uint8_t*)testa = 0x12;
     memory_init(boot_info);
+    *(uint8_t*)testa = 0x56;
     log_init();
     irq_init();
     time_init();
@@ -54,7 +61,6 @@ void init_task_entry(void){
     }
 
 }
-
 
 
 void init_main(void) {

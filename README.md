@@ -60,3 +60,9 @@ list_node_t* list_remove_first(list_t* list) {
         node = node->next;
     }
 ```
+
+
+## 内存分页 有点问题
+现在内存分页开了以后，不能开全剧终断开关了，具体点就是`sti`指令，已执行就重启（win平台重启Qemu,linux平台coredown，跟Qemu有关。 暂时不知道咋解决）
+
+### 只是进程页表没处理好而已。稍安勿躁小问题
