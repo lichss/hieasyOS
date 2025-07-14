@@ -29,6 +29,6 @@ typedef struct _memry_map_t{
 
 void memory_init(boot_info_t* boot_info);
 
-uint32_t memory_create_uvm(void);
+
 
 #endif

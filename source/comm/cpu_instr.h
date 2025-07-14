@@ -18,11 +18,11 @@
 
 #else
 static inline void cli() {
-	asm volatile("cli");
+	__asm__ __volatile__("cli");
 }
 
 static inline void sti() {
-	asm volatile("sti");
+	__asm__ __volatile__("sti");
 }
 
 #endif
