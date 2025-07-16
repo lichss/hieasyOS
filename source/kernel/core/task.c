@@ -5,6 +5,8 @@
 #include "cpu/cpu.h"
 #include "comm/cpu_instr.h"
 #include "cpu/irq.h"
+#include "core/memory.h"
+#include "cpu/mmu.h"
 
 // static uint32_t init_task_stack[IDLE_TASK_SIZE];
 static uint32_t idle_task_stack[IDLE_STACK_SIZE];
@@ -83,11 +85,13 @@ void task_switch_from_to(task_t *form, task_t* to){
     // simple_switch(&form->stack,to->stack);
 }
 
-
+// extern void* first_task_entry;
 void task_first_init(void){
-    task_init(&task_manager.first_task,"first task",(uint32_t)0,0);
+    task_init(&task_manager.first_task,"first task",(uint32_t)first_task_entry,0);
     write_tr(task_manager.first_task.tss_sel);
     task_manager.curr_task = &task_manager.first_task;
+
+    mmu_set_page_dir(task_manager.first_task.tss.cr3);
 }
 
 task_t* task_first_task(void){

@@ -15,16 +15,12 @@
  */
 
 static uint32_t init_task_stack[1024];     
-static uint32_t secd_task_stack[1024];     
+  
 static task_t init_task;
-static task_t scnd_task;
+
 static sem_t sem;
 
-uint32_t testa(){
-    int a = 2;
 
-    return a+1;
-}
 
 void kernel_init (boot_info_t * boot_info) {
     // 初始化CPU，再重新加载
@@ -41,49 +37,24 @@ void kernel_init (boot_info_t * boot_info) {
 }
 
 
-void second_task_entry(void){
-    int count = 0;
-    while(1){
-        count++;
-        log_printf("second task:%d",count);
-    }
-}
-
-void init_task_entry(void){
-    int count = 0;
-    for(;;){
-        
-        // if(count % 10000 == 0)
-        // sem_wait(&sem);
-        log_printf("deputy task %d",count++);
-        // task_switch_from_to(&init_task, task_first_task());
-        // sys_sched_yield();
-    }
+void move_to_first_task(){
+    task_t* curr = task_current();
+    ASSERT(curr != 0);
+    tss_t* tss = &(curr->tss);
+    asm volatile("jmp *%[ip]"::[ip]"r"(tss->eip));
 
 }
+
 
 
 void init_main(void) {
 
     log_printf("running version:%s","no version\n");
-
-    task_init(&init_task,"init task",(uint32_t)init_task_entry,(uint32_t)&init_task_stack[1024]);
-//    task_init(&scnd_task,"second task",(uint32_t)second_task_entry, (uint32_t)&secd_task_stack[1024]);
+    int a=1;
+    int b=2;
+    int c=3;
     task_first_init();
-    sem_init(&sem,0);
-    int a=0;
-    irq_enable_global();
-
-    while(1){
-        a++;
-        // if(a % 10000 == 0)
-        log_printf("main task:%d",a);
-        // sem_notify(&sem);
-        
-        // sys_sleep(1000);
-        // sys_sched_yield();
-        // task_switch_from_to(task_first_task(),&init_task);
-    }
+    move_to_first_task();
 
     return;
 }

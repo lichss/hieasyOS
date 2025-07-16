@@ -73,4 +73,6 @@ void task_set_wakeup(task_t* task);
 
 void sys_sleep(uint32_t ms);
 
+
+void first_task_entry(void);
 #endif
