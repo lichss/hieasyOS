@@ -17,6 +17,7 @@
         "os_cfg.h": "c",
         "timer.h": "c",
         "log.h": "c",
-        "list.h": "c"
+        "list.h": "c",
+        "bitmap.h": "c"
     },
 }

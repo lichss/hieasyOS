@@ -21,6 +21,8 @@ static int tss_init (task_t * task, uint32_t entry, uint32_t esp) {
     segment_desc_set(tss_sel, (uint32_t)&task->tss, sizeof(tss_t), 
             SEG_P_PRESENT | SEG_DPL0 | SEG_TYPE_TSS);
 
+    /*到这里为止 完成的工作是获取新的段描述符 然后设置描述符属性*/
+
     // tss段初始化
     kernel_memset(&task->tss, 0, sizeof(tss_t));
 
@@ -34,14 +36,13 @@ static int tss_init (task_t * task, uint32_t entry, uint32_t esp) {
     task->tss.cs = KERNEL_SELECTOR_CS;    // 暂时写死
     task->tss.iomap = 0;
 
-    /* 这部分显然还没做完 为了不影响运行 暂时注释 */
-    // uint32_t page_dir = memory_create_uvm();
-    // if(page_dir == 0){
-    //     gdt_free_sel(tss_sel);
-    //     return -1;
-    // }
+    uint32_t page_dir = memory_create_uvm();
+    if(page_dir == 0){
+        gdt_free_sel(tss_sel);
+        return -1;
+    }
 
-    // task->tss.cr3 = page_dir;
+    task->tss.cr3 = page_dir;
 
     task->tss_sel = tss_sel;
     return 0;

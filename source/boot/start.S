@@ -23,17 +23,17 @@ _start:
 	int $0x10
 
 _loader:
-	mov $0x8000, %bx
-	mov $0x02, %ah
-	mov $0x02, %cx
-	mov $64, %al
-	mov $0x0080, %dx
-	int $0x13
+	mov $0x8000, %bx	// 目标内存地址 (ES:BX = 0x0000:0x8000)
+	mov $0x02, %ah		// 功能号：读取扇区
+	mov $0x02, %cx		// 柱面 0,扇区 2
+	mov $64, %al		// 读取扇区数(64个扇区 = 32KB)
+	mov $0x0080, %dx	// 驱动器号(0x80 = 第一块硬盘），磁头 0
+	int $0x13			// 调用 BIOS 磁盘中断
 
-	jc _loader
+	jc _loader			// 若出错(CF=1),重试
 
-	jmp boot_entry
-	jmp .
+	jmp boot_entry		// 跳转到外部定义的 boot_entry
+	jmp .				// 无限循环（冗余保险）
 	
 	// 引导结束段
 	.section boot_end, "ax"

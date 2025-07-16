@@ -1,6 +1,10 @@
 #include "loader.h"
 #include "elf.h"
 // loader_anomi_entry
+/**
+ * @brief read disk from to 
+ * buf 就是内存区域
+ */
 static int read_disk(uint32_t  sector, uint32_t sector_count, void *buf) {
     const uint8_t slaveBit = 0;
     outb(0x1F6, 0xE0 | (slaveBit << 4));

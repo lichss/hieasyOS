@@ -42,6 +42,11 @@ void gate_desc_set(gate_desc_t* desc,uint16_t selector,uint32_t offset, uint16_t
 int gdt_alloc_desc(){
     mutex_lock(&mutex);
     /* 我操这段代码不是很理解 */
+    /*  就由来自未来的我来解答你的疑惑 */
+    /** 
+     * 轮询查找可用的全局描述符表项，超过界限则返回错误
+     * 想要理解这些 就要明白段描述符 全局描述符表
+     */
     for(int i=1;i<GDT_TABLE_SIZE;i++){
         segment_desc_t * desc = gdt_table + i;
         if(desc->attr == 0){
