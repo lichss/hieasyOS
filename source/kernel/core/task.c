@@ -87,11 +87,20 @@ void task_switch_from_to(task_t *form, task_t* to){
 
 // extern void* first_task_entry;
 void task_first_init(void){
+    extern uint8_t s_first_task[], e_first_task[];
+    uint32_t copy_size = e_first_task - s_first_task;
+    uint32_t alloc_size = 10 * MEM_PAGE_SIZE;
+    uint32_t first_start = (uint32_t)first_task_entry;
+
     task_init(&task_manager.first_task,"first task",(uint32_t)first_task_entry,0);
     write_tr(task_manager.first_task.tss_sel);
     task_manager.curr_task = &task_manager.first_task;
 
     mmu_set_page_dir(task_manager.first_task.tss.cr3);
+
+    memory_alloc_page_for(first_start,alloc_size,PTE_P | PTE_W);
+    kernel_memcpy((void*)first_task_entry, s_first_task, copy_size);
+
 }
 
 task_t* task_first_task(void){

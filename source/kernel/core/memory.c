@@ -175,3 +175,29 @@ uint32_t memory_create_uvm(){
 
     return (uint32_t)page_dir;
 }
+int memory_alloc_for_page_dir(uint32_t page_dir,uint32_t vaddr,uint32_t size, int perm){
+    uint32_t curr_vaddr = vaddr;
+    uint32_t page_count = up2(size,MEM_PAGE_SIZE) / MEM_PAGE_SIZE;
+
+    for(int i=0;i<page_count;i++){
+        uint32_t paddr = addr_alloc_page(&paddr_alloc,1); /*get a new page. real physical memory */
+        if(paddr == 0 ){
+            log_printf("memory allocate err. can not get page.");
+            return 0;
+        }
+    
+        int err_numer = memory_create_map((pde_t*)page_dir,curr_vaddr,paddr,1,perm);
+        if(err_numer < 0){  /*  pages already alloacted bot been re*/
+            log_printf("create memory failed. err number %d",err_numer);
+            return 0;
+        }
+
+        curr_vaddr += MEM_PAGE_SIZE;
+    }
+
+    return 0;
+};
+
+int memory_alloc_page_for(uint32_t addr,uint32_t size, int perm){
+    return memory_alloc_for_page_dir(task_current()->tss.cr3, addr, size, perm);
+}

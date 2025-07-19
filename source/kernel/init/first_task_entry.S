@@ -1,8 +1,9 @@
-  	
+   
+  	.section .note.GNU-stack,"",%progbits 
     .text
     .global first_task_entry
     .extern first_task_main
-    //first_task_entry
+
 first_task_entry:
     mov %ss,    %ax
     mov %ax,    %ds
