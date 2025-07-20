@@ -1,6 +1,6 @@
 /**
  * 好复杂
- * 
+ * 但我理解了 我 厉害 
  * 
  */
 #include "core/memory.h"
@@ -201,3 +201,5 @@ int memory_alloc_for_page_dir(uint32_t page_dir,uint32_t vaddr,uint32_t size, in
 int memory_alloc_page_for(uint32_t addr,uint32_t size, int perm){
     return memory_alloc_for_page_dir(task_current()->tss.cr3, addr, size, perm);
 }
+
+
