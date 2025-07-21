@@ -41,6 +41,13 @@
 #define PIC1_OCW2			0xa0
 #define PIC1_IMR			0xa1
 
+#define ERR_PAGE_PRESENT		(1 << 0)		// 页错误异常的错误码位
+#define ERR_PAGE_WRITE			(1 << 1)		// 页错误异常的错误码位
+#define ERR_PAGE_USER			(1 << 2)		// 页错误异常的错误码位
+
+#define ERR_EXT             (1 << 0)        // 扩展错误码位
+#define ERR_IDT              (1 << 1)        // IDT错误码位
+
 #define PIC_ICW1_ICW4		(1 << 0)		// 1 - 需要初始化ICW4
 #define PIC_ICW1_ALWAYS_1	(1 << 4)		// 总为1的位
 #define PIC_ICW4_8086	    (1 << 0)        // 8086工作模式
@@ -59,7 +66,10 @@ typedef struct _exception_frame_t {
     int num;
     int error_code;
     int eip, cs, eflags;
+    int esp3,ss3;
+
 }exception_frame_t;
+
 
 typedef void (* irq_handler_t) (exception_frame_t* frame);
 

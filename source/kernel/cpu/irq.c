@@ -9,10 +9,20 @@ static gate_desc_t idt_table[IDT_TABLE_NR];
 
 void dump_core_regs(exception_frame_t* frame){
 
+	uint32_t ss,esp;
+	if(frame->cs & 0x3) {
+		ss = frame->ss3;
+		esp = frame->esp3;
+	} else {
+		ss = frame->ds;
+		esp = frame->esp;
+	}
+
+	
 	log_printf("IRQ: %d\tERROR CODE:%d\n",frame->num,frame->error_code);
 
-	log_printf("GS: %d\tFS: %d\tES: %d\tDS: %d\tSS:%d\t",frame->gs,frame->fs,frame->es,frame->ds,frame->ds);
-	log_printf("EDI: %d\tESI: %d\tEBP: %d\tEBP: %d\n",frame->edi,frame->esi,frame->ebp,frame->ebp);
+	log_printf("GS: %d\tFS: %d\tES: %d\tDS: %d\tSS:%d\t",frame->gs,frame->fs,frame->es,frame->ds,ss);
+	log_printf("EDI: %d\tESI: %d\tEBP: %d\tESP: %d\n",frame->edi,frame->esi,frame->ebp,esp);
 	log_printf("EAX: %d\tEBX: %d\tECX: %d\tEDX: %d\n",frame->eax,frame->ebx,frame->ecx,frame->edx);
 	log_printf("GS: %d\tFS: %d\tES: %d\tDS: %d\n",frame->gs,frame->fs,frame->es,frame->ds);
 
@@ -92,11 +102,52 @@ void do_handler_stack_segment_fault(exception_frame_t * frame) {
 }
 
 void do_handler_general_protection(exception_frame_t * frame) {
+	
+	log_printf("General Protection Exception.\n");
+	if(frame->error_code & ERR_EXT) {
+		log_printf("Extended Error Code: %d\n", frame->error_code & ~ERR_EXT);
+	} else {
+		log_printf("No Extended Error Code.\n");
+	}
+	if(frame->error_code & ERR_IDT) {
+		log_printf("IDT Error Code: %d\n", frame->error_code & ~ERR_IDT);
+	} else {
+		log_printf("No IDT Error Code.\n");
+	}
+
+	log_printf("selector index: %d",frame->error_code & 0xFFF8);
+
 	do_default_handler(frame, "General Protection.");
+
 }
 
 void do_handler_page_fault(exception_frame_t * frame) {
-	do_default_handler(frame, "Page Fault.");
+	log_printf("Page Fault Exception.\n");
+
+	if(frame->error_code & ERR_PAGE_PRESENT) {
+		log_printf("Page Fault: Page not present. :0x%x", read_cr2());
+	} else {
+		log_printf("Page Fault: Page present. :0x%x", read_cr2());
+	}
+
+	if(frame->error_code & ERR_PAGE_WRITE) {
+		log_printf("Page Fault: Write operation. : 0x%x", read_cr2());
+	} else {
+		log_printf("Page Fault: Read operation. : 0x%x", read_cr2());
+	}
+
+	if(frame->error_code & ERR_PAGE_USER) {
+		log_printf("Page Fault: User mode access. : 0x%x", read_cr2());
+	} else {
+		log_printf("Page Fault: Kernel mode access. : 0x%x", read_cr2());
+	}
+
+	dump_core_regs(frame);
+
+	// do_default_handler(frame, "Page Fault.");
+	while(1){
+		hlt();
+	}
 }
 
 void do_handler_fpu_error(exception_frame_t * frame) {

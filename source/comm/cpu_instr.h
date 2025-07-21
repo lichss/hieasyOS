@@ -55,6 +55,12 @@ static inline void write_cr0(uint32_t v) {
 	asm volatile("mov %[v], %%cr0"::[v]"r"(v));
 }
 
+static inline uint32_t read_cr2() {
+	uint32_t cr2;
+	asm volatile("mov %%cr2, %[v]":[v]"=r"(cr2));
+	return cr2;
+}
+
 /* 这里使用u32 而不是u16 */
 static inline uint32_t read_cr3() {
 	uint32_t cr3;

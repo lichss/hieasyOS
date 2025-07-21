@@ -4,8 +4,11 @@
 
 #include "cpu/cpu.h"
 #include "tools/list.h"
-#define TASK_NAME_SIZE      32 
-#define TASK_TIME_SLICE_DEFAULT 10 
+#define TASK_NAME_SIZE              32 
+#define TASK_TIME_SLICE_DEFAULT     10 
+#define TASK_PRVLEVEL_SYSTEM        (1 << 0) 
+/* TASK_PREVLEVEL == TASK_FLAGS_SYS */
+#define TASK_PRVLEVEL_APP           (0 << 0)
 /*
 * task_t 
 *
@@ -35,7 +38,7 @@ typedef struct _task_t{
 }task_t;
 
 
-int task_init(task_t *task,const char* name,uint32_t entry,uint32_t esp);
+int task_init(task_t *task,const char* name, uint32_t pre_level,uint32_t entry,uint32_t esp);
 void task_switch_from_to(task_t *form, task_t* to);
 
 typedef struct _task_manager_t{
