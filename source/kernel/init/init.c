@@ -41,7 +41,17 @@ void move_to_first_task(){
     task_t* curr = task_current();
     ASSERT(curr != 0);
     tss_t* tss = &(curr->tss);
-    asm volatile("jmp *%[ip]"::[ip]"r"(tss->eip));
+
+    asm volatile(
+        "push %[ss]\n\t"
+        "push %[esp]\n\t"
+        "push %[eflags]\n\t"
+        "push %[cs]\n\t"
+        "push %[eip]\n\t"
+        "iret"::[ss]"r"(tss->ss), [esp]"r"(tss->esp),
+        [eflags]"r"(tss->eflags), [cs]"r"(tss->cs), [eip]"r"(tss->eip)
+    );
+
 
 }
 

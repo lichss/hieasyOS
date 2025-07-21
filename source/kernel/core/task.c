@@ -36,9 +36,14 @@ static int tss_init (task_t * task, uint32_t prv_level, uint32_t entry, uint32_t
         code_sel = task_manager.app_code_sel | SEG_CPL3;
         data_sel = task_manager.app_data_sel | SEG_CPL3;
     }
-
+    /* maybe ,in this case, evey task has small kernel stack. */
+    uint32_t kernel_stack  = (uint32_t)memory_alloc_page();
+    if(kernel_stack == 0){
+        goto tss_init_fail;
+    }
     task->tss.eip = entry;
-    task->tss.esp = task->tss.esp0 = esp;
+    task->tss.esp = esp;
+    task->tss.esp0 = kernel_stack + MEM_PAGE_SIZE; // 0级栈顶
     task->tss.ss = data_sel;
     task->tss.ss0 = KERNEL_SELECTOR_DS; // 0级数据段
     task->tss.eip = entry;
@@ -58,6 +63,14 @@ static int tss_init (task_t * task, uint32_t prv_level, uint32_t entry, uint32_t
 
     task->tss_sel = tss_sel;
     return 0;
+
+tss_init_fail:
+    gdt_free_sel(tss_sel);
+    if(kernel_stack != 0)
+        memory_free_page(kernel_stack);
+
+    return -1;
+
 }
 
 
@@ -102,13 +115,16 @@ void task_first_init(void){
     uint32_t alloc_size = 10 * MEM_PAGE_SIZE;
     uint32_t first_start = (uint32_t)first_task_entry;
 
-    task_init(&task_manager.first_task,"first task",(0), (uint32_t)first_task_entry,0);
+    task_init(&task_manager.first_task,"first task",(0), (uint32_t)first_task_entry,first_start + alloc_size);  
+    /* consider this for reason of
+        esp grow down, so esp should be higher than entry point*/
+    
     write_tr(task_manager.first_task.tss_sel);
     task_manager.curr_task = &task_manager.first_task;
 
     mmu_set_page_dir(task_manager.first_task.tss.cr3);
 
-    memory_alloc_page_for(first_start,alloc_size,PTE_P | PTE_W);
+    memory_alloc_page_for(first_start,alloc_size,PTE_P | PTE_W | PTE_U);
     kernel_memcpy((void*)first_task_entry, s_first_task, copy_size);
 
 }
