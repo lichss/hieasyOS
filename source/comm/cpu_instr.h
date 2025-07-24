@@ -4,19 +4,8 @@
 #include "types.h"
 
 
-/* 
-    全他妈是汇编
-    根本就看不懂
-*/
-#if 0
-#define cli() \
-    asm volatile("cli")
-
-#define sti() \
-    asm volatile("sti")
 
 
-#else
 static inline void cli() {
 	__asm__ __volatile__("cli");
 }
@@ -25,7 +14,6 @@ static inline void sti() {
 	__asm__ __volatile__("sti");
 }
 
-#endif
 
 static inline uint8_t inb(uint16_t  port) {
 	uint8_t rv;

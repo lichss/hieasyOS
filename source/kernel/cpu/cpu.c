@@ -5,6 +5,7 @@
 #include "os_cfg.h"
 #include "cpu/irq.h"
 #include "ipc/mutex.h"
+#include "core/syscall.h"
 
 /* 你看 GDT table就是segment descript 组成的数组 */
 static segment_desc_t gdt_table[GDT_TABLE_SIZE];
@@ -27,10 +28,12 @@ void segment_desc_set(int selector, uint32_t base, uint32_t limit, uint16_t attr
 	desc->base31_24 = (base >> 24) & 0xff;
 }
 
-/*
- * 初始化GDT
+/**
+ * @brief set new Descreptor. (element of GDT)
+ * @param desc Addr of Descriptor. could be calc.
+ * @param selector sel. index of gdt.
+ * 
  */
-
 
 void gate_desc_set(gate_desc_t* desc,uint16_t selector,uint32_t offset, uint16_t attr){
     desc->offset15_0 = offset & 0xffff;
@@ -39,14 +42,14 @@ void gate_desc_set(gate_desc_t* desc,uint16_t selector,uint32_t offset, uint16_t
     desc->offset31_16 = (offset >> 16) & 0xffff;
 }
 
+
+/**
+ * @brief 分配GDT表项
+ * @param NULL 无需
+ */
 int gdt_alloc_desc(){
     mutex_lock(&mutex);
-    /* 我操这段代码不是很理解 */
-    /*  就由来自未来的我来解答你的疑惑 */
-    /** 
-     * 轮询查找可用的全局描述符表项，超过界限则返回错误
-     * 想要理解这些 就要明白段描述符 全局描述符表
-     */
+
     for(int i=1;i<GDT_TABLE_SIZE;i++){
         segment_desc_t * desc = gdt_table + i;
         if(desc->attr == 0){
@@ -74,6 +77,10 @@ void init_gdt(void) {
                      SEG_P_PRESENT | SEG_DPL0 | SEG_S_NORMAL | SEG_TYPE_CODE
                      | SEG_TYPE_RW | SEG_D);
 
+
+    gate_desc_set((gate_desc_t*) gdt_table + (SELECTOR_SYSCALL >> 3),
+                    KERNEL_SELECTOR_CS,(uint32_t)exception_handler_syscall,
+                    GATE_P_PRESENT | GATE_DPL3 | GATE_TYPE_SYSCALL | SYSCALL_PARAM_COUNT);
 
     // 加载gdt
     lgdt((uint32_t)gdt_table, sizeof(gdt_table));

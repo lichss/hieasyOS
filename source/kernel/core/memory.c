@@ -22,7 +22,11 @@ static void addr_alloc_init(addr_alloc_t* alloc,uint8_t* bits,uint32_t start,uin
     bitmap_init(&alloc->bitmap,bits,size/page_size,0);
 
 }
-
+/**
+ * @brief return physical addr in page size.
+ * @param alloc const struct(class).
+ * @param page_count page numbe needed.
+ */
 static uint32_t addr_alloc_page(addr_alloc_t* alloc,int page_count){
     uint32_t addr = 0;
     mutex_lock(&alloc->mutex);
@@ -119,7 +123,15 @@ void create_kernel_table(void){
     extern uint8_t e_text[];
     extern uint8_t s_data[];
     extern uint8_t kernel_base[];
+/*
 
+    void* vstart;
+    void* vend;
+    void* pstart;
+    uint32_t perm;
+
+
+*/
 
     static memory_map_t kernel_map[] = {
         {kernel_base,           s_text,                         kernel_base,                PTE_W   },
@@ -160,6 +172,10 @@ void memory_init(boot_info_t* boot_info){
     mmu_set_page_dir((uint32_t)kernel_page_dir);
 }
 
+/**
+ * @brief return user pde table.(load to cr3)
+ * @param NUll no param
+ */
 uint32_t memory_create_uvm(){
     pde_t* page_dir = (pde_t*)addr_alloc_page(&paddr_alloc,1);
     if(page_dir == 0){
@@ -175,6 +191,9 @@ uint32_t memory_create_uvm(){
 
     return (uint32_t)page_dir;
 }
+
+
+
 int memory_alloc_for_page_dir(uint32_t page_dir,uint32_t vaddr,uint32_t size, int perm){
     uint32_t curr_vaddr = vaddr;
     uint32_t page_count = up2(size,MEM_PAGE_SIZE) / MEM_PAGE_SIZE;

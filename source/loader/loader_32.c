@@ -64,9 +64,9 @@ static uint32_t elf_load(void* file_buffer){
 
     return elf_header->e_entry;
 }
-#define PDE_P (1 << 0) // Page Directory Entry Present
-#define PDE_W      (1 << 1) // Page Directory Entry Read/Write
-#define PDE_PS     (1 << 7) // Page Directory Entry Page Size
+#define PDE_P       (1 << 0) // Page Directory Entry Present
+#define PDE_W       (1 << 1) // Page Directory Entry Read/Write
+#define PDE_PS      (1 << 7) // Page Directory Entry Page Size
 
 #define CR4_PSE     (1 << 4) // Page Size Extensions
 #define CR0_PG      (1 << 31) // Paging

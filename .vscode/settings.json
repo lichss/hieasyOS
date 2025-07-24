@@ -18,6 +18,7 @@
         "timer.h": "c",
         "log.h": "c",
         "list.h": "c",
-        "bitmap.h": "c"
+        "bitmap.h": "c",
+        "syscall.h": "c"
     },
 }

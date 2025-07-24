@@ -96,7 +96,8 @@ int task_init(task_t* task,const char* name, uint32_t prv_level, uint32_t entry,
     irq_state_t state = irq_enter_protection(); 
     task_set_ready(task);
     list_insert_last(&task_manager.task_list,&task->all_node);
-    
+    task->pid = (uint32_t)task;
+
     irq_leave_protection(state);
     return 0;
 }
@@ -283,6 +284,12 @@ void sys_sleep(uint32_t ms){
 
     task_dispatch();
     irq_leave_protection(state);
+}
+
+int sys_getpid(){
+    task_t* curr = task_current();
+    int pid = curr->pid;
+    return pid;
 }
 
 void manager_report(void){

@@ -35,6 +35,7 @@ typedef struct _task_t{
 
     tss_t tss;
     int tss_sel;
+    int pid;
 }task_t;
 
 
@@ -78,7 +79,7 @@ void task_set_sleep(task_t* taks,uint32_t ticks);
 void task_set_wakeup(task_t* task);
 
 void sys_sleep(uint32_t ms);
-
+int sys_getpid();
 
 void first_task_entry(void);
 #endif
