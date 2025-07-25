@@ -293,7 +293,7 @@ int sys_getpid(){
 }
 
 void sys_printmsg(int fmt,int arg){
-    log_printf("syscall:%s",(char*)fmt);
+    log_printf((const char*)fmt,arg);
 }
 
 void manager_report(void){
