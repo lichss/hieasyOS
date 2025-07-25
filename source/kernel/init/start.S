@@ -155,4 +155,4 @@ exception_handler_syscall:
 	pop %ds
 	popa
 
-	ret $(5*4)
+	retf $(5*4)
