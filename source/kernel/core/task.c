@@ -292,6 +292,10 @@ int sys_getpid(){
     return pid;
 }
 
+void sys_printmsg(int fmt,int arg){
+    log_printf("syscall:%s",(char*)fmt);
+}
+
 void manager_report(void){
     log_printf("-------Manager report-----\n");
     log_printf("now ready task number:%d",task_manager.ready_list.count);

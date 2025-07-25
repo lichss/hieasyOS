@@ -80,6 +80,6 @@ void task_set_wakeup(task_t* task);
 
 void sys_sleep(uint32_t ms);
 int sys_getpid();
-
+void sys_printmsg(int fmt,int arg);
 void first_task_entry(void);
 #endif
