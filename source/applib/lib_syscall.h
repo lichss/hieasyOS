@@ -8,6 +8,7 @@
 #define SYS_get_pid     (1)
 #define SYS_printmsg    (2)
 
+
 typedef struct _syscall_args_t{
     int id;
     int arg0;
@@ -16,6 +17,8 @@ typedef struct _syscall_args_t{
     int arg3;
 
 }syscall_args_t;
+
+
 static inline int sys_call(syscall_args_t* args){
     uint32_t addr[] = {0,SELECTOR_SYSCALL | 0};
     int ret;
@@ -62,13 +65,11 @@ static inline int get_pid(){
 static inline void print_msg(const char* fmt,int arg){
     syscall_args_t args;
     args.id = SYS_printmsg;
-
     args.arg0 = (int)fmt;
     args.arg1 = arg;
-
-
     sys_call(&args);
-} 
+
+}
 
 
 #endif

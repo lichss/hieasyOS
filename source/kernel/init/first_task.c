@@ -10,7 +10,7 @@ int first_task_main(){
     while(1){
         // log_printf("first task main.");
         // sys_sleep(1000);
-        a++;
+        print_msg("ababab%d",13);
         msleep(1000);
     }
 }
