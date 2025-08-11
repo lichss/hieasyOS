@@ -7,6 +7,7 @@
 #include "cpu/irq.h"
 #include "core/memory.h"
 #include "cpu/mmu.h"
+#include "core/syscall.h"
 
 // static uint32_t init_task_stack[IDLE_TASK_SIZE];
 static uint32_t idle_task_stack[IDLE_STACK_SIZE];
@@ -31,6 +32,10 @@ static int tss_init (task_t * task, uint32_t prv_level, uint32_t entry, uint32_t
     // tss段初始化
     kernel_memset(&task->tss, 0, sizeof(tss_t));
 
+    uint32_t kernel_stack  = (uint32_t)memory_alloc_page();
+    if(kernel_stack == 0){
+        goto tss_init_fail;
+    }
     uint32_t code_sel,data_sel;
     if(prv_level & TASK_PRVLEVEL_SYSTEM){
         code_sel = KERNEL_SELECTOR_CS;
@@ -40,14 +45,11 @@ static int tss_init (task_t * task, uint32_t prv_level, uint32_t entry, uint32_t
         data_sel = task_manager.app_data_sel | SEG_CPL3;
     }
     /* maybe ,in this case, evey task has small kernel stack. */
-    uint32_t kernel_stack  = (uint32_t)memory_alloc_page();
-    if(kernel_stack == 0){
-        goto tss_init_fail;
-    }
+
     task->tss.eip = entry;
-    task->tss.esp = esp;
+    task->tss.esp = esp ? esp : kernel_stack + MEM_PAGE_SIZE;  // 未指定栈则用内核栈，即运行在特权级0的进程
     task->tss.esp0 = kernel_stack + MEM_PAGE_SIZE; // 0级栈顶
-    task->tss.ss = data_sel;
+    // task->tss.ss = data_sel;
     task->tss.ss0 = KERNEL_SELECTOR_DS; // 0级数据段
     task->tss.eip = entry;
     task->tss.eflags = EFLAGS_DEFAULT | EFLAGS_IF;
@@ -58,8 +60,9 @@ static int tss_init (task_t * task, uint32_t prv_level, uint32_t entry, uint32_t
 
     uint32_t page_dir = memory_create_uvm();
     if(page_dir == 0){
-        gdt_free_sel(tss_sel);
-        return -1;
+        goto tss_init_fail;
+        // gdt_free_sel(tss_sel);
+        // return -1;
     }
 
     task->tss.cr3 = page_dir;
@@ -82,24 +85,28 @@ tss_init_fail:
 
 int task_init(task_t* task,const char* name, uint32_t prv_level, uint32_t entry,uint32_t esp){
     ASSERT(task!= 0);
-    tss_init(task, prv_level, entry, esp);
+    
+    int err = tss_init(task, prv_level, entry, esp);
+    if (err < 0) {
+        log_printf("init task failed.\n");
+        return err;
+    }
 
     kernel_strncpy(task->name,name,TASK_NAME_SIZE);
-
-    task->time_ticks = TASK_TIME_SLICE_DEFAULT;
-    task->slice_ticks = task->time_ticks;
-    task->sleep_ticks = 0;
-
     task->state = TASK_CREATED;
-    
+    task->sleep_ticks = 0;
+    task->slice_ticks = task->time_ticks;
+    task->time_ticks = TASK_TIME_SLICE_DEFAULT;
+    task->parent = (task_t *)0;
+
     list_node_init(&task->run_node);
     list_node_init(&task->all_node);
     list_node_init(&task->wait_node);
 
     irq_state_t state = irq_enter_protection(); 
+    task->pid = (uint32_t)task;
     task_set_ready(task);
     list_insert_last(&task_manager.task_list,&task->all_node);
-    task->pid = (uint32_t)task;
 
     irq_leave_protection(state);
     return 0;
@@ -343,9 +350,43 @@ int sys_fork (void) {
     }
     child_task->parent = parent_task;
 
+    syscall_frame_t * frame = (syscall_frame_t *)(parent_task->tss.esp0 - sizeof(syscall_frame_t));
+
+    // 对子进程进行初始化，并对必要的字段进行调整
+    // 其中esp要减去系统调用的总参数字节大小，因为其是通过正常的ret返回, 而没有走系统调用处理的ret(参数个数返回)
+    int err = task_init(child_task,  parent_task->name, 0, frame->eip,
+                        frame->esp + sizeof(uint32_t)*SYSCALL_PARAM_COUNT);
+    if (err < 0) {
+        goto fork_failed;
+    }
+
+    // 从父进程的栈中取部分状态，然后写入tss。
+    // 注意检查esp, eip等是否在用户空间范围内，不然会造成page_fault
+    tss_t * tss = &child_task->tss;
+    tss->eax = 0;                       // 子进程返回0
+    tss->ebx = frame->ebx;
+    tss->ecx = frame->ecx;
+    tss->edx = frame->edx;
+    tss->esi = frame->esi;
+    tss->edi = frame->edi;
+    tss->ebp = frame->ebp;
+
+    tss->cs = frame->cs;
+    tss->ds = frame->ds;
+    tss->es = frame->es;
+    tss->fs = frame->fs;
+    tss->gs = frame->gs;
+    tss->eflags = frame->eflags;
+
+    child_task->parent = parent_task;
+
+    // 复制父进程的内存空间到子进程，暂时使用相同的页表
+    child_task->tss.cr3 = parent_task->tss.cr3;
 
     // 创建成功，返回子进程的pid
-    return (uint32_t)child_task;   // 暂时用这个
+    return child_task->pid;
+
+
 fork_failed:
     if (child_task) {
         free_task(child_task);
