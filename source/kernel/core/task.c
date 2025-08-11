@@ -11,6 +11,9 @@
 // static uint32_t init_task_stack[IDLE_TASK_SIZE];
 static uint32_t idle_task_stack[IDLE_STACK_SIZE];
 static task_manager_t task_manager;
+static task_t task_table[TASK_NR];      // 用户进程表
+static mutex_t task_table_mutex;        // 进程表互斥访问锁
+
     /* 操作系统的 */
 static int tss_init (task_t * task, uint32_t prv_level, uint32_t entry, uint32_t esp) {
     // 为TSS分配GDT
@@ -143,6 +146,8 @@ static void idle_task_entry(void){
 }
 
 void task_manager_init(){
+    kernel_memset(task_table, 0, sizeof(task_table));
+    mutex_init(&task_table_mutex);
 
     int data_sel = gdt_alloc_desc();
     if(data_sel < 0){
@@ -168,7 +173,13 @@ void task_manager_init(){
     list_init(&task_manager.task_list);
     list_init(&task_manager.sleep_list);
 
-    task_init(&task_manager.idle_task,"idel task",(TASK_PRVLEVEL_SYSTEM), (uint32_t)idle_task_entry,(uint32_t)(idle_task_stack + IDLE_STACK_SIZE));
+    task_init(&task_manager.idle_task,
+        "idel task",
+        (TASK_PRVLEVEL_SYSTEM), 
+        (uint32_t)idle_task_entry,
+        // (uint32_t)(idle_task_stack + IDLE_STACK_SIZE),
+        0   /* 难道是这里出错了？*/
+    );
 
 
     task_manager.curr_task = 0;
@@ -291,11 +302,56 @@ int sys_getpid(){
     int pid = curr->pid;
     return pid;
 }
-
-int sys_fork (void) {
-    return -1;
+/**
+ * @brief 释放任务结构
+ */
+static void free_task (task_t * task) {
+    mutex_lock(&task_table_mutex);
+    task->name[0] = 0;
+    mutex_unlock(&task_table_mutex);
 }
 
+
+
+/**
+ * @brief 分配一个任务结构
+ */
+static task_t * alloc_task (void) {
+    task_t * task = (task_t *)0;
+
+    mutex_lock(&task_table_mutex);
+    for (int i = 0; i < TASK_NR; i++) {
+        task_t * curr = task_table + i;
+        if (curr->name[0] == 0) {
+            task = curr;
+            break;
+        }
+    }
+    mutex_unlock(&task_table_mutex);
+
+    return task;
+}
+
+
+int sys_fork (void) {
+    task_t * parent_task = task_current();
+
+    // 分配任务结构
+    task_t * child_task = alloc_task();
+    if (child_task == (task_t *)0) {
+        goto fork_failed;
+    }
+    child_task->parent = parent_task;
+
+
+    // 创建成功，返回子进程的pid
+    return (uint32_t)child_task;   // 暂时用这个
+fork_failed:
+    if (child_task) {
+        free_task(child_task);
+    }
+    return -1;
+}
 
 void sys_printmsg(int fmt,int arg){
     log_printf((const char*)fmt,arg);

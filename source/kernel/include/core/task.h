@@ -24,6 +24,9 @@ typedef struct _task_t{
     }state;
 
     char name[TASK_NAME_SIZE];
+    
+    int pid;
+    struct _task_t * parent;
 
     int sleep_ticks;
     int time_ticks;
@@ -35,7 +38,6 @@ typedef struct _task_t{
 
     tss_t tss;
     int tss_sel;
-    int pid;
 }task_t;
 
 
