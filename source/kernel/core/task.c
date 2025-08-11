@@ -292,6 +292,11 @@ int sys_getpid(){
     return pid;
 }
 
+int sys_fork (void) {
+    return -1;
+}
+
+
 void sys_printmsg(int fmt,int arg){
     log_printf((const char*)fmt,arg);
 }

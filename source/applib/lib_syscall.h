@@ -3,10 +3,11 @@
 
 #include "comm/types.h"
 #include "os_cfg.h"
+#include "core/syscall.h"
 
-#define SYS_sleep       (0)
-#define SYS_get_pid     (1)
-#define SYS_printmsg    (2)
+// #define SYS_sleep       (0)
+// #define SYS_get_pid     (1)
+// #define SYS_printmsg    (2)
 
 
 typedef struct _syscall_args_t{
@@ -55,9 +56,9 @@ static inline void msleep(int ms){
     sys_call(&args);
 }
 
-static inline int get_pid(){
+static inline int getpid(){
     syscall_args_t args;
-    args.id = SYS_get_pid;
+    args.id = SYS_getpid;
 
     return sys_call(&args);
 }
@@ -69,6 +70,12 @@ static inline void print_msg(const char* fmt,int arg){
     args.arg1 = arg;
     sys_call(&args);
 
+}
+
+static inline int fork() {
+    syscall_args_t args;
+    args.id = SYS_fork;
+    return sys_call(&args);
 }
 
 

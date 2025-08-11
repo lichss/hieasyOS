@@ -4,9 +4,11 @@
 #include "comm/types.h"
 // #include "a"
 
-#define SYS_sleep           (0)
-#define SYS_getpid          (1) 
-#define SYS_printmsg        (2)
+#define SYS_sleep               0
+#define SYS_getpid              1 
+#define SYS_fork				2
+
+#define SYS_printmsg            100
 
 
 #define SYSCALL_PARAM_COUNT     5
