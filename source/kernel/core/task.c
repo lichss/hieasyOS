@@ -442,3 +442,34 @@ void sys_printmsg(int fmt,int arg){
     log_printf((const char*)fmt,arg);
 }
 
+static uint32_t load_elf_file(task_t* task,const char* name,uint32_t pagedir){
+    return 0;
+}
+
+int sys_execve( char* name,char** argv,char* env){
+    task_t* task = task_current();
+    uint32_t old_pagedir = task->tss.cr3;
+
+    uint32_t new_pagedir = memory_create_uvm();
+    if(!new_pagedir)
+        goto exec_failed;
+
+    uint32_t entry = load_elf_file(0,0,0);
+    if(!entry)
+        goto exec_failed;
+
+    task->tss.cr3 = new_pagedir;
+    mmu_set_page_dir(new_pagedir);
+
+    memory_destroy_uvm(old_pagedir);
+
+
+    return 0;
+exec_failed:
+    if(new_pagedir){
+        task->tss.cr3 = old_pagedir;
+        mmu_set_page_dir(old_pagedir);
+        memory_destroy_uvm(new_pagedir);
+    }
+    return -1;
+}

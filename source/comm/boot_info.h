@@ -13,7 +13,7 @@ typedef struct _boot_info_t{
     int ram_region_count;
 } boot_info_t;
 
-
+#define SECTOR_SIZE		512			// 磁盘扇区大小
 
 
 #endif

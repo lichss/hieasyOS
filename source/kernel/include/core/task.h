@@ -84,6 +84,6 @@ void sys_sleep(uint32_t ms);
 int sys_getpid();
 void sys_printmsg(int fmt,int arg);
 int sys_fork();
-
+int sys_execve(char* name,char** argv,char* env);
 void first_task_entry(void);
 #endif
