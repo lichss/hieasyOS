@@ -4,7 +4,8 @@
 #include "comm/types.h"
 #include "comm/cpu_instr.h"
 
-#define PDE_CNT     (1024)
+#define PDE_CNT     1024
+#define PTE_CNT     1024
 
 #define PTE_P       (1<<0)
 #define PTE_W       (1<<1)

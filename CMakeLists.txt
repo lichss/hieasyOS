@@ -16,6 +16,7 @@ endif ()
 # set(TOOL_PREFIX  "i686-elf-")
 
 # C编译器与参数配置
+set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_C_COMPILER "${TOOL_PREFIX}gcc") 
 set(CMAKE_C_FLAGS "-g -c -O0 -m32 -fno-pie -fno-stack-protector -fno-asynchronous-unwind-tables")
 

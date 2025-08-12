@@ -111,6 +111,26 @@ int task_init(task_t* task,const char* name, uint32_t prv_level, uint32_t entry,
     irq_leave_protection(state);
     return 0;
 }
+
+/**
+ * @brief 任务任务初始时分配的各项资源
+ */
+void task_uninit (task_t * task) {
+    if (task->tss_sel) {
+        gdt_free_sel(task->tss_sel);
+    }
+
+    if (task->tss.esp0) {
+        memory_free_page(task->tss.esp0 - MEM_PAGE_SIZE);
+    }
+
+    if (task->tss.cr3) {
+        memory_destroy_uvm(task->tss.cr3);
+    }
+
+    kernel_memset(task, 0, sizeof(task_t));
+}
+
 /* 这个函数的具体实现在 kernel/init/start.s 里 */
 void simple_switch(uint32_t** from,uint32_t* to);
 
@@ -295,6 +315,29 @@ void task_set_wakeup(task_t* task){
 
 }
 
+void manager_report(void){
+    log_printf("-------Manager report-----\n");
+    log_printf("now ready task number:%d",task_manager.ready_list.count);
+    char* nameList[9];
+    int ready_listN = task_manager.ready_list.count;
+    list_node_t* node = task_manager.ready_list.first;
+    int i=0;
+    for(;i<9 && i<ready_listN;i++){
+        if(node==0)
+            break;
+        nameList[i] = list_node_parent(node,task_t,run_node)->name;
+        node = node->next;
+
+    }
+    log_printf("ready list: ");
+    for(int j=0;j<i;j++){
+        log_printf("%s",nameList[j]);
+    }
+
+}
+
+
+
 void sys_sleep(uint32_t ms){
     irq_state_t state = irq_enter_protection();
     task_set_block(task_manager.curr_task);
@@ -380,15 +423,16 @@ int sys_fork (void) {
 
     child_task->parent = parent_task;
 
-    // 复制父进程的内存空间到子进程，暂时使用相同的页表
-    child_task->tss.cr3 = parent_task->tss.cr3;
 
     // 创建成功，返回子进程的pid
+
+    if ((child_task->tss.cr3 = memory_copy_uvm(parent_task->tss.cr3)) < 0) {
+        goto fork_failed;
+    }
     return child_task->pid;
-
-
 fork_failed:
     if (child_task) {
+        task_uninit(child_task);
         free_task(child_task);
     }
     return -1;
@@ -398,23 +442,3 @@ void sys_printmsg(int fmt,int arg){
     log_printf((const char*)fmt,arg);
 }
 
-void manager_report(void){
-    log_printf("-------Manager report-----\n");
-    log_printf("now ready task number:%d",task_manager.ready_list.count);
-    char* nameList[9];
-    int ready_listN = task_manager.ready_list.count;
-    list_node_t* node = task_manager.ready_list.first;
-    int i=0;
-    for(;i<9 && i<ready_listN;i++){
-        if(node==0)
-            break;
-        nameList[i] = list_node_parent(node,task_t,run_node)->name;
-        node = node->next;
-
-    }
-    log_printf("ready list: ");
-    for(int j=0;j<i;j++){
-        log_printf("%s",nameList[j]);
-    }
-
-}
