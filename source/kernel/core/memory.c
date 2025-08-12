@@ -271,7 +271,10 @@ void memory_destroy_uvm(uint32_t page_dir){
 }
 
 #if 0
-int memory_copy_uvm(uint32_t pd){
+/**
+ * 这我自己写的 有点问题 但我暂时不想管哪里出问题了
+ */
+uint32_t memory_copy_uvm(uint32_t pd){
     uint32_t to_pd = memory_create_uvm();
     if(to_pd == 0)
         goto copy_uvm_failed;

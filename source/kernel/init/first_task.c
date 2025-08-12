@@ -20,7 +20,7 @@ int first_task_main(){
         print_msg("parent: %d", count);
     }
 
-    pid = getpid();
+    // pid = getpid();
     for (;;) {
         print_msg("task id = %d", pid);
         msleep(1000);
