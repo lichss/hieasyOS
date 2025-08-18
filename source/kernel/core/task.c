@@ -431,6 +431,7 @@ int sys_fork (void) {
     if ((child_task->tss.cr3 = memory_copy_uvm(parent_task->tss.cr3)) < 0) {
         goto fork_failed;
     }
+
     return child_task->pid;
 fork_failed:
     if (child_task) {
@@ -444,6 +445,9 @@ void sys_printmsg(int fmt,int arg){
     log_printf((const char*)fmt,arg);
 }
 
+/**
+ * @brief 加载一个程序表头的数据到内存中
+ */
 static int load_phdr(int file, Elf32_Phdr * phdr, uint32_t page_dir) {
     // 生成的ELF文件要求是页边界对齐的
     ASSERT((phdr->p_vaddr & (MEM_PAGE_SIZE - 1)) == 0);
@@ -569,37 +573,67 @@ load_failed:
 }
 
 
-int sys_execve( char* name,char** argv,char* env){
-    task_t* task = task_current();
-    uint32_t old_pagedir = task->tss.cr3;
 
-    uint32_t new_pagedir = memory_create_uvm();
-    if(!new_pagedir)
+int sys_execve(char *name, char **argv, char **env) {
+    task_t * task = task_current();
+
+    // 现在开始加载了，先准备应用页表，由于所有操作均在内核区中进行，所以可以直接先切换到新页表
+    uint32_t old_page_dir = task->tss.cr3;
+    uint32_t new_page_dir = memory_create_uvm();
+    if (!new_page_dir) {
         goto exec_failed;
+    }
 
-    uint32_t entry = load_elf_file(task,name,new_pagedir);
-    if(entry == 0)
+    // 加载elf文件到内存中。要放在开启新页表之后，这样才能对相应的内存区域写
+    uint32_t entry = load_elf_file(task, name, new_page_dir);    // 暂时置用task->name表示
+    if (entry == 0) {
         goto exec_failed;
+    }
 
-    uint32_t stack_top = MEM_TASK_STACK_TOP - MEM_TASK_ARG_SIZE;    // 预留一部分参数空间
-    int err = memory_alloc_for_page_dir(new_pagedir,
+    // 准备用户栈空间，预留环境环境及参数的空间
+    uint32_t stack_top = MEM_TASK_STACK_TOP;
+    int err = memory_alloc_for_page_dir(
+                            new_page_dir,
                             MEM_TASK_STACK_TOP - MEM_TASK_STACK_SIZE,
-                            MEM_TASK_STACK_SIZE, PTE_P | PTE_U | PTE_W);
+                            MEM_TASK_STACK_SIZE, 
+                            PTE_P | PTE_U | PTE_W);
     if (err < 0) {
         goto exec_failed;
     }
-    task->tss.cr3 = new_pagedir;
-    mmu_set_page_dir(new_pagedir);
 
-    memory_destroy_uvm(old_pagedir);
+    // 加载完毕，为程序的执行做必要准备
+    // 注意，exec的作用是替换掉当前进程，所以只要改变当前进程的执行流即可
+    // 当该进程恢复运行时，像完全重新运行一样，所以用户栈要设置成初始模式
+    // 运行地址要设备成整个程序的入口地址
+    syscall_frame_t * frame = (syscall_frame_t *)(task->tss.esp0 - sizeof(syscall_frame_t));
+    frame->eip = entry;
+    frame->eax = frame->ebx = frame->ecx = frame->edx = 0;
+    frame->esi = frame->edi = frame->ebp = 0;
+    frame->eflags = EFLAGS_DEFAULT| EFLAGS_IF;  // 段寄存器无需修改
 
+    // 内核栈不用设置，保持不变，后面调用memory_destroy_uvm并不会销毁内核栈的映射。
+    // 但用户栈需要更改, 同样要加上调用门的参数压栈空间
+    frame->esp = stack_top - sizeof(uint32_t)*SYSCALL_PARAM_COUNT;
 
-    return 0;
-exec_failed:
-    if(new_pagedir){
-        task->tss.cr3 = old_pagedir;
-        mmu_set_page_dir(old_pagedir);
-        memory_destroy_uvm(new_pagedir);
+    // 切换到新的页表
+    task->tss.cr3 = new_page_dir;
+    mmu_set_page_dir(new_page_dir);   // 切换至新的页表。由于不用访问原栈及数据，所以并无问题
+
+    // 调整页表，切换成新的，同时释放掉之前的
+    // 当前使用的是内核栈，而内核栈并未映射到进程地址空间中，所以下面的释放没有问题
+    memory_destroy_uvm(old_page_dir);            // 再释放掉了原进程的内容空间
+
+    // 当从系统调用中返回时，将切换至新进程的入口地址运行，并且进程能够获取参数
+    // 注意，如果用户栈设置不当，可能导致返回后运行出现异常。可在gdb中使用nexti单步观察运行流程
+    return  0;
+
+exec_failed:    // 必要的资源释放
+    if (new_page_dir) {
+        // 有页表空间切换，切换至旧页表，销毁新页表
+        task->tss.cr3 = old_page_dir;
+        mmu_set_page_dir(old_page_dir);
+        memory_destroy_uvm(new_page_dir);
     }
+
     return -1;
 }

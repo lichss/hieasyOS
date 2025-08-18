@@ -22,6 +22,8 @@ int kernel_memcmp (void * d1, void * d2, int size);
 void kernel_itoa(char * buf, int num, int base);
 void kernel_sprintf(char * buffer, const char * fmt, ...);
 void kernel_vsprintf(char * buffer, const char * fmt, va_list args);
+char* get_file_name (char * name);
+
 
 
 #ifndef RELEASE

@@ -4,7 +4,8 @@
  * 作者：李述铜
  * 联系邮箱: 527676163@qq.com
  */
-     .text
+    .section .note.GNU-stack,"",%progbits
+    .text
     .global _start
     .extern cstart
 _start:

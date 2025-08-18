@@ -3,7 +3,7 @@
 
  */
 	// 关于下面这段权限指令可以参考.md文件
-	.section .note.GNU-stack,"",%progbits
+	//.section .note.GNU-stack,"",%progbits
   	// 16位代码,务必加上
   	.code16 
  	.text
