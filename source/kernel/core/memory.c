@@ -228,6 +228,17 @@ static pde_t* curr_page_dir(void){
 uint32_t memory_alloc_page(){
     return addr_alloc_page(&paddr_alloc,1);
 }
+
+uint32_t memory_get_paddr (uint32_t page_dir, uint32_t vaddr) {
+    pte_t * pte = find_pte((pde_t *)page_dir, vaddr, 0);
+    if (pte == (pte_t *)0) {
+        return 0;
+    }
+
+    return pte_paddr(pte) + (vaddr & (MEM_PAGE_SIZE - 1));
+}
+
+
 void memory_free_page(uint32_t addr){
     if(addr < MEMORY_TASK_BASE){
         addr_free_page(&paddr_alloc,addr,1);
