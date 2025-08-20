@@ -20,7 +20,7 @@ typedef union _pde_t{
     uint32_t v;
     struct {
         uint32_t present : 1;
-        uint32_t write_enable : 1;
+        uint32_t write_disable : 1;
         uint32_t user_mode_acc : 1;
         uint32_t write_through : 1;
         uint32_t cache_disable : 1;
@@ -36,13 +36,14 @@ typedef union _pte_t{
     uint32_t v;
     struct {
         uint32_t present : 1;
-        uint32_t write_enable : 1;
+        uint32_t write_disable : 1;
         uint32_t user_mode_acc : 1;
         uint32_t write_through : 1;
         uint32_t cache_disable : 1;
         uint32_t accessed : 1;
         uint32_t dirty : 1;
         uint32_t pat : 1;
+        uint32_t global : 1;
         uint32_t : 3;
         uint32_t phy_page_addr: 20;
     };

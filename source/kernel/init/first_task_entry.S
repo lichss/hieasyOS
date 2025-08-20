@@ -1,5 +1,5 @@
    
-  	//.section .note.GNU-stack,"",%progbits 
+  	.section .note.GNU-stack,"",%progbits 
     .text
     .global first_task_entry
     .extern first_task_main
