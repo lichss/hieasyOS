@@ -1,15 +1,14 @@
-# 顶层cmakelist文件，以下的设置将被子工程所继承使用
+
 cmake_minimum_required(VERSION 3.5.0)
 
 # 保存一些通用的配置
-set(CMAKE_VERBOSE_MAKEFILE on)   # 开启输出编译详细过程的提示
+set(CMAKE_VERBOSE_MAKEFILE on)   
 
-# gcc工具链前缀，根据实际情况做不同的设置
-# 目前mac和win上使用x86_64-elf-
+
 if (CMAKE_HOST_WIN32 OR CMAKE_HOST_APPLE)
     set(TOOL_PREFIX  "x86_64-elf-")
 elseif (CMAKE_HOST_WIN32)
-    set(TOOL_PREFIX  "x86_64-linux-gnu-")    # 待补充
+    set(TOOL_PREFIX  "x86_64-linux-gnu-")   
 endif ()
 
 # set(TOOL_PREFIX  "x86_64-elf-")
@@ -44,7 +43,7 @@ include_directories(
 #     ${PROJECT_SOURCE_DIR}/../newlib/i686-elf/include
 )
 
-# 底层的若干子项目：含内核及应用程序
+
 add_subdirectory(./source/boot)
 add_subdirectory(./source/loader)
 add_subdirectory(./source/kernel)
@@ -54,7 +53,7 @@ add_subdirectory(./source/shell)
 # add_subdirectory(./source/loop)
 
 # 添加编译依赖，先生成app库，再生成kernel和shell
-# 不加则cmake则可能先编译shell和kernel，而缺少libapp，导致编译错误
+
 # add_dependencies(init app)       
 add_dependencies(shell app)
 # add_dependencies(loop app)
