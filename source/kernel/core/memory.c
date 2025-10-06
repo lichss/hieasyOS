@@ -1,8 +1,5 @@
-/**
- * 好复杂
- * 但我理解了 我 厉害 
- * 
- */
+/*memory*/
+
 #include "core/memory.h"
 #include "tools/log.h"
 #include "tools/klib.h"
